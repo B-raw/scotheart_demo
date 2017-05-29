@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <title>D3 Page Template</title>
+    <script type="text/javascript" src="../d3/d3.js"></script>
+    <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
+    <script src="./scotheart2.js"></script>
+    <script src="./getValueFromRadioButton.js"></script>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body>
+    <h1>Scotheart</h1>
+    <p>
+      <label for="age">
+             Age = <span id="age-value">…</span>
+      </label>
+      <br>
+      <input type="range" min="20" max="90" value="50" step="1" id="age">
+    </p>
+    <p>
+      <label for="gender">
+             Gender = <span id="gender-value">…</span>
+      </label>
+      <input type="radio" name="gender" value="male"> Male<br>
+      <input type="radio" name="gender" value="female"> Female<br>
+    </p>
+    <p>
+      <label for="angina">
+             Angina symptoms = <span id="angina-value">…</span>
+      </label>
+      <input type="radio" name="angina" value="typical"> Typical<br>
+      <input type="radio" name="angina" value="atypical"> Atypical<br>
+      <input type="radio" name="angina" value="non-angina"> Non-angina<br>
+    </p>
+    <p>
+      <label for="tni">
+             TNI = <span id="tni-value">…</span>
+      </label>
+      <br>
+      <input type="range" min="0" max="15" value="1.5" step="0.1" id="tni">
+    </p>
+
+    <h2>Result of CadRisk = <span id="cadScore">...</span></h2>
+
+    <script type="text/javascript">
+      // when the input range changes update the age
+      var age, gender, angina, tni, cadScore;
+      cadScore = CADRisk(30, "male", "typical", 5)
+
+      d3.select("#cadScore").text(cadScore);
+
+      var w = 150;
+			var h = 350;
+      var padding = 30;
+
+      var yScale = d3.scaleLinear()
+                     .domain([0, 100])
+                     .range([h-padding, padding]);
+
+      var yAxis = d3.axisLeft(yScale)
+                    .ticks(10);
+
+      var svg = d3.select("body")
+                  .append("svg")
+                  .attrs({"width": w,
+                          "height": h})
+
+// ESC Guidelines
+// https://www.escardio.org/Guidelines/Clinical-Practice-Guidelines/Stable-Coronary-Artery-Disease-Management-of
+// green background area - 0-15%
+      var greenArea = d3.select("svg")
+                        .append("rect")
+                        .attrs({
+                          "fill": "rgb(173, 235, 173)",
+                          "x": padding,
+                          "y": h - yScale(100-15),
+                          "height": yScale(85) - padding,
+                          "width": w - padding
+                        })
+
+// yellow background area - 15-65%
+      var yellowArea = d3.select("svg")
+                        .append("rect")
+                        .attrs({
+                          "fill": "rgb(255, 255, 179)",
+                          "x": padding,
+                          "y": h - yScale(100-65),
+                          "height": yScale(50) - padding,
+                          "width": w - padding
+                        })
+
+// orange background area 66-85%
+      var orangeArea = d3.select("svg")
+                        .append("rect")
+                        .attrs({
+                          "fill": "rgb(255, 221, 153)",
+                          "x": padding,
+                          "y": h - yScale(100-85),
+                          "height": yScale(80) - padding,
+                          "width": w - padding
+                        })
+
+// red background area - 85-100%
+      var redArea = d3.select("svg")
+                        .append("rect")
+                        .attrs({
+                          "fill": "rgb(255, 153, 153)",
+                          "x": padding,
+                          "y": h - yScale(0),
+                          "height": yScale(85) - padding,
+                          "width": w - padding
+                        })
+
+      svg.selectAll("rect")
+        .select("b")
+        .data([cadScore])
+        .enter()
+        .append("rect")
+        .attrs({
+          "x": function() { return w / 2; },
+          "y": function(d) { return yScale(d); },
+          "width": function(d) { return 30; },
+          "height": function(d) { return h - yScale(d) - padding; },
+          "fill": "black",
+          "class": "cadScoreBar"
+        })
+
+      svg.append("g")
+         .attrs({"class": "axis",
+                 "transform": function() { return "translate(" + padding + ",0)"}})
+         .call(yAxis);
+
+      //Event Listeners
+       d3.select("#age").on("input", function() {
+         age = this.value
+         update(age, gender, angina, tni);
+       });
+
+       d3.select("#tni").on("input", function() {
+         tni = this.value
+         update(age, gender, angina, tni);
+       });
+
+       d3.selectAll("input[name='gender']").on("change", function() {
+         gender = getValueFromRadioButton("gender")
+         update(age, gender, angina, tni);
+       });
+
+       d3.selectAll("input[name='angina']").on("change", function() {
+         angina = getValueFromRadioButton("angina")
+         update(age, gender, angina, tni);
+       });
+
+       // Initial starting age
+       age = 50;
+       gender = "male";
+       angina = "atypical";
+       tni = 1.5
+       update(age, gender, angina, tni)
+
+      function update(age, gender, angina, tni) {
+        d3.select("#age-value").text(age);
+        d3.select("#age").property("value", age);
+
+        d3.select("#gender-value").text(gender);
+        // d3.selectAll("input[name=gender]").property("checked", true);
+
+        d3.select("#tni-value").text(tni);
+        // for(var i = 0; i < d3.selectAll("input[name=angina]")._groups.length; i++) {
+        //   var current_radio_button = d3.selectAll("input[name=angina]")._groups[i]
+        //   if (current_radio_button == tni) {
+        //     current_radio_button.checked==true;
+        //   }
+        // }
+        // d3.selectAll("input[name=tni]").property("value", tni);
+
+        d3.select("#angina-value").text(angina);
+        d3.select("#angina").property("value", angina);
+        updateCadscore(age, gender, angina, tni)
+      }
+
+      function updateCadscore(age, gender, angina, tni) {
+        cadScore = CADRisk(age, gender, angina, tni)
+
+        svg.select(".cadScoreBar")
+          .data([cadScore])
+          .attrs({
+            "y": function(d) { return yScale(d); },
+            "height": function(d) { return h - yScale(d) - padding; }
+           })
+
+         //add the cadScore to the header
+         d3.select("#cadScore").text(cadScore);
+      }
+
+    </script>
+  </body>
+</html>
