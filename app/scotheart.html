@@ -15,14 +15,14 @@
     <h1>Scotheart</h1>
     <p>
       <label for="age">
-             Age = <span id="age-value">…</span>
+        Age = <span id="age-value">…</span>
       </label>
       <br>
       <input type="range" min="20" max="90" value="50" step="1" id="age">
     </p>
     <p>
       <label for="gender">
-             Gender = <span id="gender-value">…</span>
+        Gender = <span id="gender-value">…</span>
       </label>
       <br>
       <input type="radio" name="gender" value="male"> Male<br>
@@ -30,7 +30,7 @@
     </p>
     <p>
       <label for="angina">
-             Angina symptoms = <span id="angina-value">…</span>
+        Angina symptoms = <span id="angina-value">…</span>
       </label>
       <br>
       <input type="radio" name="angina" value="typical"> Typical<br>
@@ -39,7 +39,7 @@
     </p>
     <p>
       <label for="tni">
-             TNI = <span id="tni-value">…</span>
+        TNI = <span id="tni-value">…</span>
       </label>
       <br>
       <input type="range" min="0" max="15" value="1.5" step="0.1" id="tni">
@@ -122,32 +122,33 @@
                         })
 
 //attach Edinburgh score
-      svg.selectAll("rect")
+      svg.selectAll("circle")
         .select("b")
         .data([cadScore])
         .enter()
-        .append("rect")
+        .append("circle")
         .attrs({
-          "x": function() { return w / 3; },
-          "y": function(d) { return yScale(d); },
-          "width": function(d) { return 30; },
-          "height": function(d) { return h - yScale(d) - padding; },
-          "fill": "black",
+          "cx": function() { return w / 3 + 15; },
+          "cy": function(d) { return yScale(d); },
+          "r": function() { return 6; },
+          // "width": function(d) { return 30; },
+          // "height": function(d) { return h - yScale(d) - padding; },
+          "fill": "steelblue",
           "class": "cadScoreBar"
         })
 
 //attach ESC score
-      svg.selectAll("rect")
+      svg.selectAll("circle")
         .select("c")
         .data([escScore])
         .enter()
-        .append("rect")
+        .append("circle")
         .attrs({
-          "x": function() { return (2 * w) / 3; },
-          "y": function(d) { return yScale(d); },
-          "width": function(d) { return 30; },
-          "height": function(d) { return h - yScale(d) - padding; },
-          "fill": "black",
+          "cx": function() { return (2 * w) / 3 + 15; },
+          "cy": function(d) { return yScale(d); },
+          "r": function(d) { return 6; },
+          // "height": function(d) { return h - yScale(d) - padding; },
+          "fill": "steelblue",
           "class": "escScoreBar"
         })
 
@@ -212,8 +213,8 @@
         svg.select(".cadScoreBar")
           .data([cadScore])
           .attrs({
-            "y": function(d) { return yScale(d); },
-            "height": function(d) { return h - yScale(d) - padding; }
+            "cy": function(d) { return yScale(d); },
+            // "height": function(d) { return h - yScale(d) - padding; }
            })
 
          //add the cadScore to the header
@@ -226,8 +227,8 @@
         svg.select(".escScoreBar")
           .data([escScore])
           .attrs({
-            "y": function(d) { return yScale(d); },
-            "height": function(d) { return h - yScale(d) - padding; }
+            "cy": function(d) { return yScale(d); },
+            // "height": function(d) { return h - yScale(d) - padding; }
            })
 
          //add the cadScore to the header
