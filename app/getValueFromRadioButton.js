@@ -1,4 +1,4 @@
-getValueFromRadioButton = function (name) {
+function getValueFromRadioButton (name) {
    //Get all elements with the name
    var buttons = document.getElementsByName(name);
    for(var i = 0; i < buttons.length; i++) {

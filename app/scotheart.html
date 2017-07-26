@@ -7,6 +7,7 @@
     <script type="text/javascript" src="../d3/d3.js"></script>
     <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
     <script src="./scotheart2.js"></script>
+    <script src="./escformula.js"></script>
     <script src="./getValueFromRadioButton.js"></script>
     <link rel="stylesheet" href="../styles.css">
   </head>
@@ -45,15 +46,20 @@
     </p>
 
     <h2>Risk of Obstructive Coronary Disease: <span id="cadScore">...</span>%</h2>
+    <h2>ESC Risk of Obstructive Coronary Disease: <span id="escScore">...</span>%</h2>
+
 
     <script type="text/javascript">
       // when the input range changes update the age
       var age, gender, angina, tni, cadScore;
       cadScore = CADRisk(30, "male", "typical", 5)
+      escScore = ESCRisk(30, "male", "typical", 5)
 
       d3.select("#cadScore").text(cadScore);
+      d3.select("#escScore").text(escScore);
 
-      var w = 150;
+
+      var w = 250;
 			var h = 350;
       var padding = 30;
 
@@ -115,18 +121,34 @@
                           "width": w - padding
                         })
 
+//attach Edinburgh score
       svg.selectAll("rect")
         .select("b")
         .data([cadScore])
         .enter()
         .append("rect")
         .attrs({
-          "x": function() { return w / 2; },
+          "x": function() { return w / 3; },
           "y": function(d) { return yScale(d); },
           "width": function(d) { return 30; },
           "height": function(d) { return h - yScale(d) - padding; },
           "fill": "black",
           "class": "cadScoreBar"
+        })
+
+//attach ESC score
+      svg.selectAll("rect")
+        .select("c")
+        .data([escScore])
+        .enter()
+        .append("rect")
+        .attrs({
+          "x": function() { return (2 * w) / 3; },
+          "y": function(d) { return yScale(d); },
+          "width": function(d) { return 30; },
+          "height": function(d) { return h - yScale(d) - padding; },
+          "fill": "black",
+          "class": "escScoreBar"
         })
 
       svg.append("g")
@@ -181,6 +203,7 @@
         d3.select("#angina-value").text(angina);
         d3.select("#angina").property("value", angina);
         updateCadscore(age, gender, angina, tni)
+        updateEscscore(age, gender, angina)
       }
 
       function updateCadscore(age, gender, angina, tni) {
@@ -195,6 +218,20 @@
 
          //add the cadScore to the header
          d3.select("#cadScore").text(cadScore);
+      }
+
+      function updateEscscore(age, gender, angina) {
+        escScore = ESCRisk(age, gender, angina)
+
+        svg.select(".escScoreBar")
+          .data([escScore])
+          .attrs({
+            "y": function(d) { return yScale(d); },
+            "height": function(d) { return h - yScale(d) - padding; }
+           })
+
+         //add the cadScore to the header
+         d3.select("#escScore").text(escScore);
       }
 
     </script>
